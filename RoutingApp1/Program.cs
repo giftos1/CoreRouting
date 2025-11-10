@@ -3,6 +3,13 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true; // Configure routing to use lowercase URLs
+    options.AppendTrailingSlash = false; // Configure routing to not append trailing slashes
+    options.LowercaseQueryStrings = false; // Configure routing to not lowercase query strings
+});
+
 //builder.Services.AddHealthChecks(); // Add services required by the health-check middleware
 //builder.Services.AddRazorPages(); // Add services required by Razor Pages
 
@@ -18,9 +25,15 @@ app.MapGet("/product/{name}", (string name) =>
 
 app.MapGet("/links", (LinkGenerator links) => //❸
 {
-    string? link = links.GetPathByName("product", new { name = "big-widget" }); //❹
+    string? link = links.GetPathByName("product", new { name = "Big-Widget" }); //❹
+    // links.GetPathByName(product", options: new LinkOptions { LowercaseUrls = false, AppendTrailingSlash = false });
     // links.GetUriByName("product", new { name = "my-product" }, "https", new HostString("localhost"));
     return $"View the product at {link}"; // ❺
+});
+
+app.MapGet("/redirect-me", () =>
+{
+    return Results.RedirectToRoute("Hello"); // Generates a response that sends a redirect to the "hello" endpoint
 });
 
 app.Run();
